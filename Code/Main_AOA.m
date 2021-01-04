@@ -40,12 +40,30 @@ tanA2 = tanA_square(2);
 tanA3 = tanA_square(3);
 
 f=@(x)[(x(3)-Z_b1)^2/((x(1)-X_b1)^2+(x(2)-Y_b1)^2)-tanA1;(x(3)-Z_b2)^2/((x(1)-X_b2)^2+(x(2)-Y_b2)^2)-tanA2;(x(3)-Z_b3)^2/((x(1)-X_b3)^2+(x(2)-Y_b3)^2)-tanA3];
-
-%(obs1(3)-Z_b1)^2/((obs1(1)-X_b1)^2+(obs1(2)-Y_b1)^2)-tanA1
-
 x0=[(X_b1+X_b2+X_b3)/3,(Y_b1+Y_b2+Y_b3)/3,1];
 [x,fval]=fsolve(f,x0);
+%Newton-Raphson法求多元非线性方程组
+x0=[(X_b1+X_b2+X_b3)/3,(Y_b1+Y_b2+Y_b3)/3,1];
+for i = 1:5
+B = zeros(3,3);
+L = zeros(3,1);
+B(1,1) = 2*tanA1*(X_b1 - x0(1));
+B(1,2) = 2*tanA1*(Y_b1 - x0(2));
+B(1,3) = -2*(Z_b1 - x0(3));
+B(2,1) = 2*tanA2*(X_b2 - x0(1));
+B(2,2) = 2*tanA2*(Y_b2 - x0(2));
+B(2,3) = -2*(Z_b2 - x0(3));
+B(3,1) = 2*tanA3*(X_b3 - x0(1));
+B(3,2) = 2*tanA3*(Y_b3 - x0(2));
+B(3,3) = -2*(Z_b3 - x0(3));
 
+L(1,1) = tanA1*(X_b1-x0(1))^2 + tanA1*(Y_b1-x0(2))^2 - (Z_b1-x0(3))^2 ;
+L(2,1) = tanA2*(X_b2-x0(1))^2 + tanA2*(Y_b2-x0(2))^2 - (Z_b2-x0(3))^2 ;
+L(3,1) = tanA3*(X_b3-x0(1))^2 + tanA3*(Y_b3-x0(2))^2 - (Z_b3-x0(3))^2 ;
+
+dx = B\L;
+x0 = x0+dx';
+end
 
 
 
