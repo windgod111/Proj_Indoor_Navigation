@@ -13,15 +13,15 @@ for i = 1:size(fileNames,2)
     D(i) = str2double(fileNames_str(2:end-5));
     rawdata_filepath = [rawdata_path ,fileNames_str];
     rawdata = importdata(rawdata_filepath,' ');
-    rawdata_rssi = rawdata.data;
+    rawdata_lenth = rawdata.data;
     
-     rawdata_rssi_mean = mean(rawdata_rssi);%粗差剔除 
-     rawdata_rssi_std  = std(rawdata_rssi);
-     index = find((rawdata_rssi < rawdata_rssi_mean+2*rawdata_rssi_std) & (rawdata_rssi > rawdata_rssi_mean-2*rawdata_rssi_std));%2倍sigma剔除粗差
-     rawdata_rssi_mean  = mean(rawdata_rssi(index));
+     rawdata_rssi_mean = mean(rawdata_lenth);%粗差剔除 
+     rawdata_rssi_std  = std(rawdata_lenth);
+     index = find((rawdata_lenth < rawdata_rssi_mean+2*rawdata_rssi_std) & (rawdata_lenth > rawdata_rssi_mean-2*rawdata_rssi_std));%2倍sigma剔除粗差
+     rawdata_rssi_mean  = mean(rawdata_lenth(index));
      
      RSSI(i) = rawdata_rssi_mean;
-     RSSI_Var(i) = cov(rawdata_rssi(index));
+     RSSI_Var(i) = cov(rawdata_lenth(index));
 end
 [D,index] = sort(D);%排序
 RSSI = RSSI(index);
@@ -53,12 +53,47 @@ basedata = importdata(baseposition_path,' ');
 dirOutput=dir(fullfile(staticdata_path,'*.txt')); %get all file name in rawdata_path
 fileNames={dirOutput.name};
 
+i = 1;
 % for i = 1:size(fileNames,2)
-%     fileNames_str = fileNames{i};
-%     rawdata_filepath = [staticdata_path ,fileNames_str];
-%     rawdata = importdata(rawdata_filepath,' ');
-%     
-%     
+    fileNames_str = fileNames{i};
+    rawdata_filepath = [staticdata_path ,fileNames_str];
+    rawdata = importdata(rawdata_filepath,' ');
+    rawdata_ID = rawdata.textdata(:,3);
+    rawdata_lenth = 10.^((rawdata.data - b)./a);%将RSSI通过模型换算成距离
+    base_ID = basedata.textdata(:,2);
+    base_pos = basedata.data;
+    
+    %将原始数据的蓝牙ID提取出来和基站的ID匹配并获得位置
+    [IDuse,ia,ic]= unique(rawdata_ID); 
+    base_pos_use = zeros(size(IDuse,1),3);
+    
+    for j = 1: size(IDuse,1)
+        idx = find(strcmp(base_ID, IDuse{j}));
+        if ~isempty(idx) 
+            base_pos_use(j,:) = base_pos(idx,:);   
+        end
+    end
+    
+    Base_pos_use = base_pos_use(ic);
+    
+    for j = 1:size(rawdata_lenth,1)
+        
+    end
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 % end
 
 
